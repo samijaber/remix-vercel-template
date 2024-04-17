@@ -6,7 +6,12 @@ import { RemixServer } from "@remix-run/react";
 import * as isbotModule from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 
+console.log("entry.server.tsx");
+
+// eslint-disable-next-line import/first
 import "@builder.io/sdk-react/init";
+
+console.log("initialized");
 
 const ABORT_DELAY = 5_000;
 
