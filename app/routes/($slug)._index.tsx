@@ -14,14 +14,16 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   const urlPath = `/${params["slug"] || ""}`;
 
-  console.log("fetching for ", urlPath);
-
-  const page = await fetchOneEntry({
+  const args = {
     model: "page",
     apiKey: apiKey,
     options: getBuilderSearchParams(url.searchParams),
     userAttributes: { urlPath },
-  });
+  };
+
+  console.log("fetching for ", args, fetchOneEntry);
+
+  const page = await fetchOneEntry(args);
 
   console.log("page", page);
 
