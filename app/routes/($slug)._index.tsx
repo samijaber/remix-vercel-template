@@ -8,6 +8,7 @@ import {
 } from "@builder.io/sdk-react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import fetch from "node-fetch";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -18,35 +19,33 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   await import("@builder.io/sdk-react/init");
   console.log("fetching for ", urlPath);
 
-  return fetchOneEntry({
+  const page = await fetchOneEntry({
     model: "page",
     apiKey: apiKey,
     options: getBuilderSearchParams(url.searchParams),
     userAttributes: { urlPath },
-    fetch: (url: any, info: any): any =>
-      import("node-fetch").then((mod) => mod.default(url, info)),
-  })
-    .then((page) => {
-      console.log("fetched page: ", page);
+    fetch: fetch as any,
+  });
 
-      const isEditingOrPreviewing = isEditing() || isPreviewing();
+  console.log("fetched page: ", page);
 
-      if (!page && !isEditingOrPreviewing) {
-        throw new Response("Page Not Found", {
-          status: 404,
-          statusText: "Page not found in Builder.io",
-        });
-      }
+  const isEditingOrPreviewing = isEditing() || isPreviewing();
 
-      return { page };
-    })
-    .catch((error: any) => {
-      console.error(error);
-      throw new Response("Fetching Error", {
-        status: 500,
-        statusText: error.message,
-      });
+  if (!page && !isEditingOrPreviewing) {
+    throw new Response("Page Not Found", {
+      status: 404,
+      statusText: "Page not found in Builder.io",
     });
+  }
+
+  return { page };
+  // .catch((error: any) => {
+  //   console.error(error);
+  //   throw new Response("Fetching Error", {
+  //     status: 500,
+  //     statusText: error.message,
+  //   });
+  // });
 };
 
 // Define and render the page.
