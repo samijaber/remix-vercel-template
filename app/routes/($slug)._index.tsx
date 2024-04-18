@@ -9,12 +9,13 @@ import {
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
-export const loader = ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const apiKey = "f1a790f8c3204b3b8c5c1795aeac4660"; // Replace with your actual API key
 
   const urlPath = `/${params["slug"] || ""}`;
 
+  await import("@builder.io/sdk-react/init");
   console.log("fetching for ", urlPath);
 
   return fetchOneEntry({
