@@ -4,26 +4,27 @@ import {
   isEditing,
   isPreviewing,
   getBuilderSearchParams,
+  Content,
 } from "@builder.io/sdk-react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const apiKey = "f1a790f8c3204b3b8c5c1795aeac4660"; // Replace with your actual API key
 
   const urlPath = `/${params["slug"] || ""}`;
 
-  const args = {
+  console.log("fetching for ", urlPath);
+
+  return fetchOneEntry({
     model: "page",
     apiKey: apiKey,
     options: getBuilderSearchParams(url.searchParams),
     userAttributes: { urlPath },
-  };
-
-  console.log("fetching for ", args);
-
-  return fetchOneEntry(args)
+    fetch: (url: any, info: any): any =>
+      import("node-fetch").then((mod) => mod.default(url, info)),
+  })
     .then((page) => {
       console.log("fetched page: ", page);
 
@@ -52,14 +53,16 @@ export default function Page() {
   // Use the useLoaderData hook to get the Page data from `loader` above.
   const { page } = useLoaderData<typeof loader>();
 
+  // console.log("rendering page", page);
+
   return (
     <div>
       Hello
       <h1>{page?.name}</h1>
       <p>{page?.id}</p>
+      <Content model="page" apiKey="YOUR_API_KEY" content={page as any} />
     </div>
   );
 
   // Render the page content from Builder.io
-  // return <Content model="page" apiKey="YOUR_API_KEY" content={page} />;
 }

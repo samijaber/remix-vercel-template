@@ -7,22 +7,8 @@ import { RemixServer } from "@remix-run/react";
 import * as isbotModule from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 
-console.log("entry.server.tsx");
-
-// fetch-polyfill.js
-import fetch, { Headers, Request, Response } from "node-fetch";
-
-if (!globalThis.fetch) {
-  (globalThis.fetch as any) = fetch;
-  (globalThis.Headers as any) = Headers;
-  (globalThis.Request as any) = Request;
-  (globalThis.Response as any) = Response;
-}
-
 // eslint-disable-next-line import/first
 import "@builder.io/sdk-react/init";
-
-console.log("initialized");
 
 const ABORT_DELAY = 5_000;
 
