@@ -5,7 +5,7 @@ import {
   isPreviewing,
   getBuilderSearchParams,
 } from "@builder.io/sdk-react";
-import type { LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
@@ -21,30 +21,30 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     userAttributes: { urlPath },
   };
 
-  console.log("fetching for ", args, fetchOneEntry);
+  console.log("fetching for ", args);
 
-  try {
-    const page = await fetchOneEntry(args);
+  return fetchOneEntry(args)
+    .then((page) => {
+      console.log("fetched page: ", page);
 
-    console.log("page", page);
+      const isEditingOrPreviewing = isEditing() || isPreviewing();
 
-    const isEditingOrPreviewing = isEditing() || isPreviewing();
+      if (!page && !isEditingOrPreviewing) {
+        throw new Response("Page Not Found", {
+          status: 404,
+          statusText: "Page not found in Builder.io",
+        });
+      }
 
-    if (!page && !isEditingOrPreviewing) {
-      throw new Response("Page Not Found", {
-        status: 404,
-        statusText: "Page not found in Builder.io",
+      return { page };
+    })
+    .catch((error: any) => {
+      console.error(error);
+      throw new Response("Fetching Error", {
+        status: 500,
+        statusText: error.message,
       });
-    }
-
-    return { page };
-  } catch (error: any) {
-    console.error(error);
-    throw new Response("Fetching Error", {
-      status: 500,
-      statusText: error.message,
     });
-  }
 };
 
 // Define and render the page.
