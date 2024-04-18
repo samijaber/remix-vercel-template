@@ -9,6 +9,7 @@ import {
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { fetch as webFetch } from "@remix-run/web-fetch";
+import x from "@builder.io/sdk-react/node/init";
 
 const apiKey = "f1a790f8c3204b3b8c5c1795aeac4660"; // Replace with your actual API key
 
@@ -16,14 +17,14 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const urlPath = `/${params["slug"] || ""}`;
 
-  await import("@builder.io/sdk-react/init");
+  await (x as any).initializeNodeRuntime();
 
   const page = await fetchOneEntry({
     model: "page",
     apiKey: apiKey,
     options: getBuilderSearchParams(url.searchParams),
     userAttributes: { urlPath },
-    fetch: webFetch as any,
+    fetch: webFetch,
   });
 
   const isEditingOrPreviewing = isEditing() || isPreviewing();
@@ -44,5 +45,5 @@ export default function Page() {
   const { page } = useLoaderData<typeof loader>();
 
   // Render the page content from Builder.io
-  return <Content model="page" apiKey={apiKey} content={page} />;
+  return <Content model="page" apiKey={apiKey} content={page as any} />;
 }
