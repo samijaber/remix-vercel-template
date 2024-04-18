@@ -23,20 +23,28 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   console.log("fetching for ", args, fetchOneEntry);
 
-  const page = await fetchOneEntry(args);
+  try {
+    const page = await fetchOneEntry(args);
 
-  console.log("page", page);
+    console.log("page", page);
 
-  const isEditingOrPreviewing = isEditing() || isPreviewing();
+    const isEditingOrPreviewing = isEditing() || isPreviewing();
 
-  if (!page && !isEditingOrPreviewing) {
-    throw new Response("Page Not Found", {
-      status: 404,
-      statusText: "Page not found in Builder.io",
+    if (!page && !isEditingOrPreviewing) {
+      throw new Response("Page Not Found", {
+        status: 404,
+        statusText: "Page not found in Builder.io",
+      });
+    }
+
+    return { page };
+  } catch (error: any) {
+    console.error(error);
+    throw new Response("Fetching Error", {
+      status: 500,
+      statusText: error.message,
     });
   }
-
-  return { page };
 };
 
 // Define and render the page.
